@@ -1,0 +1,83 @@
+[gd_scene load_steps=5 format=3 uid="uid://u8igstitik5j"]
+
+[ext_resource type="Script" uid="uid://dl3m4s35m33mk" path="res://wire.gd" id="1_xe2i4"]
+[ext_resource type="Texture2D" uid="uid://clpfc8tgmxp7h" path="res://photo_5291921689392385330_m.jpg" id="2_bdjww"]
+
+[sub_resource type="GDScript" id="GDScript_qj5kq"]
+script/source = "extends Node2D
+
+@onready var wire_container = $WireContainer
+@onready var marker = $Marker
+
+# Координаты в сетке
+var grid_position: Vector2 = Vector2.ZERO
+
+# Ссылка на провод (если есть)
+var wire_node: Node = null
+
+# Типы клеток
+enum CellType {EMPTY, START, END, WIRE}
+var cell_type = CellType.EMPTY
+
+# Инициализация клетки
+func init(pos: Vector2, type: String = \"\", wire_scene: PackedScene = null):
+	grid_position = pos
+	position = pos * 64  # Предполагаем размер клетки 64x64
+	
+	match type:
+		\"start\":
+			cell_type = CellType.START
+			marker.visible = true
+			marker.modulate = Color.GREEN
+		\"end\":
+			cell_type = CellType.END
+			marker.visible = true
+			marker.modulate = Color.RED
+		_:
+			if wire_scene:
+				set_wire(wire_scene)
+
+# Устанавливаем провод в клетку
+func set_wire(wire_scene: PackedScene):
+	if wire_node:
+		wire_node.queue_free()
+	
+	wire_node = wire_scene.instantiate()
+	wire_container.add_child(wire_node)
+	cell_type = CellType.WIRE
+
+# Получаем направления выходов провода
+func get_connections() -> Array:
+	if wire_node and wire_node.has_method(\"update_connections\"):
+		return wire_node.connections
+	return []
+
+# Проверяем, может ли клетка соединиться с соседом в заданном направлении
+func can_connect_to(direction: String) -> bool:
+	if not wire_node:
+		return false
+	
+	return wire_node.has_connection(direction)
+
+# Поворачиваем провод (если есть)
+func rotate_wire():
+	if wire_node and wire_node.has_method(\"rotate_wire\"):
+		wire_node.rotate_wire()
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bdjww"]
+size = Vector2(64, 64)
+
+[node name="Node2D" type="Node2D"]
+script = SubResource("GDScript_qj5kq")
+
+[node name="Wire" type="Area2D" parent="."]
+script = ExtResource("1_xe2i4")
+
+[node name="Sprite2D" type="Sprite2D" parent="Wire"]
+position = Vector2(119, 82)
+texture = ExtResource("2_bdjww")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wire"]
+position = Vector2(116, 80)
+shape = SubResource("RectangleShape2D_bdjww")
