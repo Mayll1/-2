@@ -71,4 +71,4 @@ func can_connect_to(direction: int) -> bool:
 # Повернуть провод в клетке
 func rotate_wire():
 	if wire_node and wire_node.has_method("rotate_wire"):
-		wire_node.rotate_wire()
+		wire_node.rotate_wire()                                           

@@ -45,4 +45,7 @@ text = "Ходы: 0"
 
 [node name="LevelController" type="Node" parent="."]
 
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(310, 324)
+
 [connection signal="pressed" from="UI/RestartButton" to="." method="_on_restart_button_pressed"]
